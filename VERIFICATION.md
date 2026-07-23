@@ -1,6 +1,6 @@
 # Verification trail
 
-Two independent GPT-5.5 Pro runs produced full proofs of the main theorem in `README.md`, via
+Two independent GPT-5.6 Sol (ChatGPT Pro) runs produced full proofs of the main theorem in `README.md`, via
 different case-splits (one on the size of max(|x|,|y|), one on sign(x,y) then a gap parameter),
 both landing on the identical exponent 18/19 and citing the identical two external theorems. That
 convergence is real signal on the elementary bookkeeping but is *not* independent evidence for the
@@ -97,7 +97,7 @@ Given both, the "probably negative" expert prior turns out to be about a materia
   their *hypotheses* are met in this application — not that the underlying 15–46 page papers are
   themselves free of error.
 - Get a genuinely different model lineage (non-OpenAI) to attempt refutation. Both the construction
-  and the adversarial pass are GPT-5.5 Pro; Claude's role throughout was checking primary sources
+  and the adversarial pass are GPT-5.6 Sol (ChatGPT Pro); Claude's role throughout was checking primary sources
   and re-deriving specific elementary claims independently, not an independent full read of the
   whole argument by a different reasoner.
 - Formalize any part of this in Lean, though the problem statement is already formalized

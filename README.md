@@ -13,7 +13,7 @@ construction structurally cannot reach degree 3 (the Mason–Stothers/Brownawell
 relies on only becomes strong enough at odd degree ≥ 13; see §6). The cubic case needed a
 different tool.
 
-**Provenance:** the construction was produced by GPT-5.5 Pro (OpenAI), run twice independently
+**Provenance:** the construction was produced by GPT-5.6 Sol via ChatGPT Pro (OpenAI), run twice independently
 with different case-splits, both converging on the same bound. It was then adversarially
 attacked — same reasoner, fresh session, explicitly instructed to try to refute rather than
 confirm — and separately checked by Claude (Anthropic) against the primary sources: the actual
@@ -154,7 +154,7 @@ by a valuation argument. Multiplicative, giving R_c(h) ≪_c 3^ω(h) ≪_{c,ε} 
   itself). Our check confirms the cited statements exist as claimed in the primary sources and
   that the hypotheses are met here — not that the underlying papers are themselves error-free.
 - Everything above has been checked by the same model family that constructed it (two independent
-  GPT-5.5 Pro runs) plus Claude's from-scratch spot-checks (identity verification, the
+  GPT-5.6 Sol (ChatGPT Pro) runs) plus Claude's from-scratch spot-checks (identity verification, the
   rational-lines argument in `VERIFICATION.md` §1, primary-source citation chases). No genuinely
   different model lineage, and no formal (Lean) verification, has looked at this yet — though the
   problem statement is already formalized at
