@@ -1,168 +1,222 @@
-# Erdős Problem #477, cubic case: a tiling complement for the cubes
+# Erdős Problem #477: every integer power ≥ 3 has a tiling complement
 
-**Claim:** the set B = {k³ : k ∈ ℤ} of integer cubes has a *tiling complement* in ℤ — a set
-A ⊂ ℤ such that every integer n has a **unique** representation n = a + k³ with a ∈ A, k ∈ ℤ.
+**Claim:** for every integer K ≥ 3, the set B_K = {mᴷ : m ∈ ℤ} has a *tiling complement* in ℤ — a
+set A ⊂ ℤ such that every integer n has a **unique** representation n = a + b, a ∈ A, b ∈ B_K.
 
-This resolves the degree-3 case of [Erdős Problem #477](https://www.erdosproblems.com/477): does
-*any* polynomial f : ℤ → ℤ of degree ≥ 2 have this property? Erdős and Graham conjectured no.
-Degree 2 was closed negatively earlier this year (AlphaProof + Adenwalla). The general question
-(existence for *some* degree ≥ 2) may already be answered affirmatively by a different,
-independently-produced construction at degree 13 ([Peng et al., June 2026]
-(https://github.com/Pengbinghui/pipeline-math/blob/main/papers/tiling-complement.pdf)) — but that
-construction structurally cannot reach degree 3 (the Mason–Stothers/Brownawell–Masser bound it
-relies on only becomes strong enough at odd degree ≥ 13; see §6). The cubic case needed a
-different tool.
+This is [Erdős Problem #477](https://www.erdosproblems.com/477), which asks: does *any*
+polynomial f : ℤ → ℤ of degree ≥ 2 have this property? Erdős and Graham conjectured no. Combined
+with the already-published negative result for degree 2 (AlphaProof + Sarosh Adenwalla — every
+even-symmetric or linear-shifted quadratic fails via a congruence argument), this would resolve
+the question in full: **no for degree 2, yes for every degree ≥ 3.**
 
-**Provenance:** the construction was produced by GPT-5.6 Sol via ChatGPT Pro (OpenAI), run twice independently
-with different case-splits, both converging on the same bound. It was then adversarially
-attacked — same reasoner, fresh session, explicitly instructed to try to refute rather than
-confirm — and separately checked by Claude (Anthropic) against the primary sources: the actual
-theorem statements in the cited papers, not abstracts, plus several claims re-derived from
-scratch independently of either model's account. Full trail in [`VERIFICATION.md`](VERIFICATION.md).
-We are not claiming certainty — see the open items at the end — but we could not find a hole
-after real effort, and we think this is ready for outside eyes.
+**Scope note — this claim grew in two stages, both documented here.** We first closed the cubic
+case (K=3) alone; that construction and its independent verification trail are preserved at
+[`appendix/cubic-case-detail.md`](appendix/cubic-case-detail.md). We then asked whether the same
+method generalizes to degrees 4–12 (the only gap left by a separate, differently-constructed
+degree-13 result — [Peng et al., June 2026](https://github.com/Pengbinghui/pipeline-math/blob/main/papers/tiling-complement.pdf)).
+It came back not just covering 4–12, but proving the fully general statement for every K ≥ 3 by
+the same uniform argument, K=3 included. What follows is that general proof. The cubic-specific
+appendix remains as the first, independently-verified instance and its own worked example.
+
+**Provenance:** construction via GPT-5.6 Sol (ChatGPT Pro, OpenAI). Adversarially attacked twice —
+once for the cubic case alone, once for the general/K=4–12 extension — in fresh sessions
+explicitly instructed to refute rather than confirm, and separately checked by Claude (Anthropic)
+against primary sources rather than taken on faith. The second adversarial round found one real
+(cosmetic, non-load-bearing) error, corrected below — see [`VERIFICATION.md`](VERIFICATION.md).
+**We have not yet sought review from a human mathematician or a different model lineage, and this
+has not been posted to erdosproblems.com's own forum** — their posting rules explicitly require a
+human to have independently verified the mathematics (or a sorry-free Lean proof) before posting
+there, and we don't yet clear that bar ourselves. This repository is offered for outside scrutiny,
+not as a claim of community acceptance.
 
 — Patrick White & Claude (MathDyad)
 
 ---
 
+## Semantic note (checked against the primary source)
+
+The problem asks for uniqueness of the **value** b ∈ B_K, not uniqueness of the integer m with
+mᴷ=b. This matters for even K, where m ↦ mᴷ is not injective. We checked this against the actual
+erdosproblems.com LaTeX statement ("...there is exactly one a∈A and b∈{f(k):k∈ℤ}...") and against
+Sekanina's original 1959 exact-factorization definition, which is unambiguous: m=a+b with a,b
+themselves unique, not any parameter used to enumerate B. It also has to be this reading for the
+degree-2 negative result to be a real theorem at all — under literal (a,k)-pair uniqueness, every
+even polynomial would fail trivially (f(k)=f(-k) always), and the actual published degree-2 proof
+is a genuine congruence argument, not that triviality. For K=3 the distinction is moot (k↦k³ is
+injective), which is why the cubic write-up phrases things in terms of a unique k without loss.
+
 ## 1. Setup
 
-Let B = {k³ : k ∈ ℤ}, D = B − B = {u³ − v³ : u, v ∈ ℤ}. For a target c ∈ ℤ \ B and X ≥ 1, define
+For B_K = {mᴷ : m ∈ ℤ}, D_K = B_K − B_K, and c ∈ ℤ \ B_K, define
 
-E_c(X) = #{1 ≤ k ≤ X : c − k³ ∈ D}
+E_{K,c}(X) = #{1 ≤ n ≤ X : c − nᴷ ∈ D_K}.
 
-— the "bad" shifts k for which c − k³ collides with a difference of two cubes.
-
-**Finite-avoidance reduction (elementary).** If, for every finite C ⊂ ℤ \ B, there exists k with
-(C − k³) ∩ D = ∅ for every c ∈ C simultaneously, a greedy enumeration of ℤ builds a full exact
-complement A. (Proof in §5 — standard diagonal argument, no uniformity in |C| required, since the
-threshold X can be chosen fresh at each finite stage.)
-
-So it suffices to prove:
+**Finite-avoidance reduction (elementary).** If for every finite C ⊂ ℤ \ B_K there's an n with
+(C − nᴷ) ∩ D_K = ∅, a greedy enumeration of ℤ builds a full exact complement (§7 below — no
+uniformity in |C| needed, since the threshold is chosen fresh at each finite stage).
 
 ## 2. Main theorem
 
-For every noncube c ∈ ℤ and every ε > 0,
+For fixed K ≥ 3, let q_K = min(9/10, 10/K), α_K = (q_K·K−1)/(K−2+q_K), β_K = q_K(K−1)/(K−2+q_K).
+Then for every ε > 0:
 
-**E_c(X) ≪_{c,ε} X^(18/19+ε).**
+**E_{K,c}(X) ≪_{K,c,ε} X^(β_K+ε).**
 
-Since this is o(X), for every *finite* C ⊂ ℤ \ B, all but o(X) of the integers 1 ≤ k ≤ X
-simultaneously avoid every target in C — finite avoidance holds, and §5 finishes the proof.
+Since q_K < 1 and K > 2, β_K < 1 always — so this is o(X), which is what finite avoidance needs.
+For 3 ≤ K ≤ 11, q_K = 9/10. For K ≥ 12, q_K = 10/K. (A formal check: substituting K=2 into the
+same formula gives exponent exactly 1, not o(X) — the mechanism structurally turns on exactly at
+degree 3, matching where the negative quadratic result sits.)
 
 ## 3. The two external inputs
 
-**(HB) Heath-Brown, 2008** ("Sums and Differences of Three k-th Powers," J. Number Theory 129
-(2009); [arXiv:0806.4330](https://arxiv.org/abs/0806.4330), Theorem 1). For a nonsingular diagonal
-form F(x₁,x₂,x₃) = x₁^k ± x₂^k ± x₃^k and fixed N ≪_F B^(3/13), the number of solutions with
-coordinates ≤ B, apart from "special" solutions (one signed term individually equal to N), is
-O_ε(B^(9/10+ε) N^(1/10)).
+**(HB1/HB2) Heath-Brown** ("Sums and Differences of Three k-th Powers," J. Number Theory 129
+(2009); [arXiv:0806.4330](https://arxiv.org/abs/0806.4330)). For a nonsingular diagonal ternary
+form X₁ᴷ±X₂ᴷ±X₃ᴷ, apart from "special" solutions (one signed term individually equal to the
+target), the solution count in a box of size B is O_{K,ε}(B^(9/10+ε)) (Theorem 1) or O_K(B^(10/K))
+(Theorem 2) — both explicit theorem statements, not abstract-level paraphrase. The paper's proof
+shows linear diagonal parameterizations reduce to special solutions via Fermat's Last Theorem, so
+no per-degree line-classification is needed.
 
 **(BHB) Browning–Heath-Brown** ("Plane curves in boxes and equal sums of two powers," Math. Z. 251
-(2005); [arXiv:math/0506497](https://arxiv.org/abs/math/0506497), formula (3), the P₁=1 case of
-their Theorem 1). For an absolutely irreducible ternary cubic F, and a box with sides 1, P₂, P₃:
+(2005); [arXiv:math/0506497](https://arxiv.org/abs/math/0506497)). For absolutely irreducible
+ternary F of degree d and box sides 1 ≤ P₂ ≤ P₃ with 𝒯 the largest monomial box-weight:
 
-N(F;1,P₂,P₃) ≪_ε P₃^ε · exp(log P₂ · log P₃ / log 𝒯)
+N(F;1,P₂,P₃) ≪_{d,ε} P₃^ε · exp(log P₂ · log P₃ / log 𝒯)
 
-where 𝒯 is the largest box-weight of any monomial occurring in F with nonzero coefficient. The
-implied constant depends only on the degree and ε — but see §7 on the coefficient-height question,
-where we tie this to the sharper explicit form in Heath-Brown's earlier paper ("The density of
-rational points on curves and surfaces," Ann. of Math. 155 (2002);
-[arXiv:math/0405392](https://arxiv.org/abs/math/0405392), Theorem 14), which makes an explicit
-(log‖F‖)^(2n−3) factor visible and shows it's harmless here.
+— implied constant depending only on d and ε, not on F's coefficients.
 
-## 4. Proof of the main theorem
+## 4. Reduction to a gap parameter
 
-A bad k has c = k³ + x³ − y³ for some x, y ∈ ℤ.
+A bad n has c = nᴷ + xᴷ − yᴷ, i.e. nᴷ − c = yᴷ − xᴷ (1). Discard O_c(1) small n so R := nᴷ−c > 0.
 
-**Case split on sign(x,y).** If x, y have opposite sign, then |x|, |y| ≤ |c − k³|^(1/3) ≪_c X, so
-(k,x,y) lies in a box of size O_c(X). Apply (HB) directly: c is not a cube, so no special solution
-exists, giving O_{c,ε}(X^(9/10+ε)) triples in this case.
+**Even K:** set a=|x|, b=|y|; then R = bᴷ−aᴷ, b>a.
 
-If x, y have the same sign, write h = |y − x| ≥ 1, u = x + y. The identity
-4(k³ − c) = h³ + 3hu² (from y³ − x³ = (y−x)(y² + xy + x²), 4(y²+xy+x²) = h² + 3u²) gives, since
-k³ − c = h(h² + 3xy)/1 ≥ h³ when xy > 0:
+**Odd K:** if x,y have opposite sign, R = |x|ᴷ+|y|ᴷ, giving |x|,|y| ≪_c X directly — counted by
+(HB) in O_{K,c,ε}(X^(q_K+ε)) (2). Otherwise (same weak half-line, including zero), set nonnegative
+a<b so again R = bᴷ−aᴷ.
 
-**h ≪_c X.**
+Either way, b=a+h, h≥1, and from bᴷ−aᴷ = h(bᴷ⁻¹+bᴷ⁻²a+...+aᴷ⁻¹): h ≪_c X (4), and
+a ≤ b ≪_c X^(K/(K−1)) h^(−1/(K−1)) (5).
 
-Split at H = X^(17/19).
+## 5. Small gaps
 
-*Small gaps (h ≤ H).* Fix h and an admissible residue r mod h with h | 4(r³ − c) — there are
-≪_{c,ε} h^ε such residues (elementary Hensel-lifting count, §8). Writing k = r + hℓ and clearing
-denominators gives a ternary cubic H_{h,r}(1,ℓ,u) = 0 with box sides P₂ ≍_c X/h, P₃ ≍_c
-X^(3/2)h^(−1/2), and coefficients O_c(h²) (not h³ — the naive homogeneous expansion overstates
-this; see §7). The curve is absolutely irreducible except at the single value h³ + 4c = 0 (a
-direct partial-derivatives check on the K = rw + ht substituted model — recognizably a disguised
-Weierstrass cubic, s² ∝ (cubic in K), singular exactly when its constant term vanishes). Apply
-(BHB): each nonsingular (h,r) contributes ≪_{c,ε} X^(1/2+ε) h^(−1/2). Summing over h ≤ H and the
-≪ h^ε residues per h gives ≪_{c,ε} X^(1/2+ε) H^(1/2+ε) = X^(18/19+ε) (with H = X^(17/19)).
+Fix cutoff H<X, 1≤h≤H.
 
-*The singular fiber.* At h³ + 4c = 0 (at most one h per c), the equation degenerates to
-4k³ = 3hu², forcing k = κ·(integer)² for a fixed squarefree κ — only O_c(X^(1/2)) values of k.
-This is not swept under the rug: it is a genuine infinite family. For c = −2d³ (any d ≥ 1),
+**Residue classes.** R_{K,c}(h) = #{r mod h : rᴷ≡c mod h} ≪_{K,c,ε} h^ε — standard: ≤K roots mod
+p (p∤Kc) with unique Hensel lift; finitely many p|Kc handled by a bounded valuation argument.
 
-**(6ds²)³ + [d(6s³−1)]³ − [d(6s³+1)]³ = −2d³** for every s ≥ 1
+**The curve.** Write n=r+hℓ. Homogenizing gives an integral degree-K form Φ_{h,r}(W,L,A), with
+box sides P₂ ≍_c X/h, P₃ ≍_c X^(K/(K−1)) h^(−1/(K−1)).
 
-— an exact identity (verified below, both algebraically and by direct computation), matching
-Heath-Brown's own published example (his paper opens with the sibling identity for c = 2). It
-contributes O_c(X^(1/2)) bad k's, which is negligible against X^(18/19).
+**Absolute irreducibility — unconditional, every h and c.** After the substitution Z=r+hL, the
+curve is Zᴷ = P(A), P(A) = c+(A+h)ᴷ−Aᴷ, degree exactly K−1, leading coefficient Kh. Over
+L=ℂ(A) (which contains every K-th root of unity), suppose Zᴷ−P(A) reducible with a root θ of
+degree d<K over L. Then L(θ)/L is automatically Galois (it already contains all K roots ζθ),
+cyclic of order d|K, so θᵈ ∈ L, and P = θᴷ = (θᵈ)^(K/d) — a p-th power in ℂ(A) for some prime
+p|K. But the valuation of P at infinity is −(K−1), and gcd(K,K−1)=1, so no prime dividing K can
+divide that valuation. Contradiction — the curve is absolutely irreducible for every h,c, singular
+or not (the classical Vahlen–Capelli exceptional case for 4|K vanishes here specifically because
+ℂ(A) contains i, making −4b⁴=(2ib²)² already a square).
 
-*Large gaps (h > H).* Then |x|, |y| ≪_c X^(3/2) H^(−1/2) = X^(20/19). Apply (HB) again (dyadically)
-to this box: O_{c,ε}(X^(18/19+ε)) triples.
+**Applying BHB.** The monomial −K·Aᴷ⁻¹W gives 𝒯 ≥ P₃ᴷ⁻¹, so
 
-Summing all three contributions gives E_c(X) ≪_{c,ε} X^(18/19+ε), proving the theorem.
+N(Φ_{h,r};1,P₂,P₃) ≪_{K,ε} P₃^ε P₂^(1/(K−1)) = X^(1/(K−1)+ε) h^(−1/(K−1)+ε).
 
-## 5. The greedy construction
+Summing over h≤H and the ≪h^ε residues per h:
 
-Enumerate ℤ = {n₁, n₂, …}. Build finite sets A₀ ⊂ A₁ ⊂ ⋯ with translates a + B (a ∈ Aⱼ) pairwise
-disjoint, covering n₁,…,nⱼ at stage j. At each step, if nⱼ is uncovered, C = {nⱼ − a : a ∈ Aⱼ₋₁}
-is a finite subset of ℤ \ B (else nⱼ would already be covered). By finite avoidance (§2), some
-k = kⱼ has (C − k³) ∩ D = ∅; set a* = nⱼ − k³ and Aⱼ = Aⱼ₋₁ ∪ {a*}. If the new translate collided
-with an old one, a* − a ∈ D for some a ∈ Aⱼ₋₁ — but a* − a = (nⱼ−a) − k³, which was chosen outside
-D. No collision. A = ⋃ⱼ Aⱼ is the exact complement. (This step needs no uniformity in |C| — the
-threshold X at stage j is chosen fresh, after Cⱼ is already fixed and finite.)
+S_K(X,H) ≪_{K,c,ε} X^(1/(K−1)+ε) H^((K−2)/(K−1)+ε).
 
-## 6. Why degree 13, not 3, for the general question
+## 6. Large gaps
 
-Peng et al.'s construction excludes *all* rational curves on the relevant surface via
-Brownawell–Masser (an S-unit theorem over function fields), which requires a Mason–Stothers-type
-inequality k·e > (3)(4e−2) to fail for every e — true for all k ≥ 12, false at k = 3 (the
-inequality is satisfiable there, so their exclusion argument gives no contradiction). Smooth cubic
-surfaces are genuinely rational and carry real families of rational curves (the identity in §4 is
-one), which is exactly why degree 3 needs the finer determinant-method route above instead of a
-clean exclusion argument.
+For h>H: a,b ≪_c M := X^(K/(K−1)) H^(−1/(K−1)) ≥ X. Every counted solution here is non-special —
+a case check by sign of c and parity of K (§6 detail in `VERIFICATION.md`) shows any special
+solution would force c ∈ B_K, contradiction, or (even K, c<0) force n=0, contradicting n≥1. Dyadic
+Heath-Brown gives
 
-## 7. Coefficient-height note
+L_K(X,H) ≪_{K,c,ε} X^(q_K·K/(K−1)+ε) H^(−q_K/(K−1)).
 
-The absolutely-irreducible cubic used in §4's small-gap case, dehomogenized at w=1, has
-coefficients O_c(h²) (using a centered residue |r| ≤ h/2): the t³ coefficient is O(h²), the t²
-coefficient O(hr) = O(h²), the t coefficient O(r²) = O(h²), and the constant term
-O(r³/h) + O(h²) = O(h²). Heath-Brown's explicit determinant-method bound (Ann. of Math. 155,
-Theorem 14) carries a (log‖F‖)^(2n−3) factor for n-variable forms; for our case this is a *fixed*
-power of log h ≪ log X, absorbed into X^ε regardless of the precise exponent. No hidden dependence
-on h survives past this log factor.
+## 7. Balancing and the greedy construction
 
-## 8. Residue-count lemma
+Setting H=X^α and balancing the two exponents gives α_K = (q_K·K−1)/(K−2+q_K), common exponent
+β_K = q_K(K−1)/(K−2+q_K) < 1, proving E_{K,c}(X) = O(X^(β_K+ε)) = o(X). The odd-K opposite-sign
+contribution X^(q_K+ε) is smaller and absorbed.
 
-R_c(h) = #{r mod h : h | 4(r³−c)} ≪_{c,ε} h^ε: standard — for p ∤ 3c, at most 3 roots mod p with
-unique Hensel lift to every p^e; for the finitely many primes dividing 3c, bounded in terms of c
-by a valuation argument. Multiplicative, giving R_c(h) ≪_c 3^ω(h) ≪_{c,ε} h^ε.
+The greedy construction is standard: enumerate ℤ, maintain disjoint translates a+B_K covering an
+initial segment; at each uncovered mⱼ, the finite target set Cⱼ = {mⱼ−a : a already chosen} is
+automatically ⊂ ℤ\B_K; finite avoidance gives an n with (Cⱼ−nᴷ)∩D_K=∅; adjoin a*=mⱼ−nᴷ. No
+collision by construction, no uniformity needed in the growing Cⱼ (the threshold at each stage is
+chosen fresh, after that stage's C is already fixed).
+
+## 8. Exceptional-fiber audit (not needed for the proof, but explains the cubic identity)
+
+Not load-bearing — §§4–7 only use absolute irreducibility, proved unconditionally above, never
+smoothness or genus. This section explains *why* the cubic case (K=3) needed a separate
+exceptional-family treatment and higher K don't.
+
+**Singular condition.** Z^K=c+(A+h)^K-A^K is singular at a finite point exactly when
+c = −hᴷ/(q−1)^(K−1) for some (K−1)-th root of unity q≠1; every such repeated root is exactly
+double.
+
+**Even K:** K−1 is odd, and (q−1)^(K−1) is always nonzero and *purely imaginary* for q a nontrivial
+(K−1)-th root of unity (derivation: q−1 = 2i·sin(θ/2)·e^(iθ/2), so (q−1)^(K−1) picks up a factor
+i^(K−1) = ±i since K−1 is odd). Since c/hᴷ must be rational, this can never hold for real
+integer c,h — **every even-K fiber is smooth**, unconditionally, for every arithmetically relevant
+value. (No genus argument is even needed for even K.)
+
+**Odd K ∈ {5,7,9,11}:** finitely many explicit rational singular c per h (tabulated in
+`VERIFICATION.md`), each pinning at most one h for fixed c — singular gaps stay O_K(1), don't
+proliferate with X.
+
+**Genus, corrected.** For the cyclic cover Zᴷ=P(A), a point where P has order m contributes
+K−gcd(K,m) to the ramification divisor. The generic curve has genus g₀=(K−1)(K−2)/2. Each double
+root (order-2 zero, s of them) drops the genus by **s·(K−2+gcd(K,2))/2** — not s(K−1)/2 as an
+earlier draft of this section claimed. That formula happens to coincide with the correct one for
+odd K (gcd(K,2)=1) but is wrong for even K (an easy tell: for K=4 it produces a non-integer
+genus, 1.5, which is impossible). The corrected version gives integer genus 1 for a complex K=4
+singular fiber — but since even-K fibers are never singular for real/integer c (previous
+paragraph), this correction has zero arithmetic consequence; it only fixes a mislabeled complex-
+geometry aside. For the odd-K singular fibers that *do* occur arithmetically (K=5,7,9,11), the
+original (unaffected-by-the-bug) genus values hold — all ≥2 — meaning by Riemann–Hurwitz no
+nonconstant map from ℙ¹ (hence no polynomial parametrization, no cubic-style identity) can exist
+on any of them. This is why the cubic case is genuinely special: its own singular fiber has genus
+0 (a cuspidal cubic), which is exactly what admits the explicit identity in the cubic appendix;
+every K=4–12 exceptional fiber sits at genus ≥1 (even K, vacuously — no such fiber exists at all)
+or ≥2 (odd K), closing off the cubic-style mechanism entirely.
+
+## 9. Degree-by-degree table
+
+| K | H=X^α_K | β_K | HB input |
+|---|---|---|---|
+| 3 | X^17/19 | 18/19 | HB1 *(cubic case; see appendix for the fully independent original write-up)* |
+| 4 | X^26/29 | 27/29 | HB1 |
+| 5 | X^35/39 | 12/13 | HB1 |
+| 6 | X^44/49 | 45/49 | HB1 |
+| 7 | X^53/59 | 54/59 | HB1 |
+| 8 | X^62/69 | 21/23 | HB1 |
+| 9 | X^71/79 | 72/79 | HB1 |
+| 10 | X^80/89 | 81/89 | HB1 |
+| 11 | X^89/99 | 10/11 | HB1 |
+| 12 | X^54/65 | 11/13 | HB2 |
+
+...and the general closed form covers every K≥13 too (subsuming, via a completely different
+route, what Peng et al.'s degree-13 S-unit construction already established for that one case).
 
 ## Open items — what we have *not* independently re-derived
 
-- We have not re-proved (HB) or (BHB) from their own foundations (the p-adic determinant method
-  itself). Our check confirms the cited statements exist as claimed in the primary sources and
-  that the hypotheses are met here — not that the underlying papers are themselves error-free.
-- Everything above has been checked by the same model family that constructed it (two independent
-  GPT-5.6 Sol (ChatGPT Pro) runs) plus Claude's from-scratch spot-checks (identity verification, the
-  rational-lines argument in `VERIFICATION.md` §1, primary-source citation chases). No genuinely
-  different model lineage, and no formal (Lean) verification, has looked at this yet — though the
-  problem statement is already formalized at
-  [google-deepmind/formal-conjectures](https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/477.lean),
-  so that's a concrete next step for anyone who wants to take it on.
+- We have not re-proved (HB1/HB2) or (BHB) from their own foundations (the p-adic determinant
+  method itself). We've confirmed the cited statements exist as claimed in the primary sources and
+  that their hypotheses are met in this application — not that the underlying papers are
+  themselves error-free.
+- Everything above has been checked by the same model family that constructed it (GPT-5.6 Sol,
+  multiple independent runs across the cubic and general rounds) plus Claude's from-scratch spot
+  checks — see `VERIFICATION.md` for the specific list, which now includes independently
+  re-deriving the corrected genus formula and confirming the K=4 non-integer tell by direct
+  computation. No genuinely different model lineage, and no formal (Lean) verification, has looked
+  at this yet — though the problem statement is already formalized at
+  [google-deepmind/formal-conjectures](https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/ErdosProblems/477.lean).
+- We have not sought review from a working number theorist. Given the scale of what's being
+  claimed here (potentially the full resolution of a 46-year-old question), that's the natural
+  next step before treating this as settled, not an optional nicety.
 
 Corrections, refutations, and pointers to literature we missed are genuinely welcome — see
-[`VERIFICATION.md`](VERIFICATION.md) for the full adversarial trail, including the specific points
-we pushed hardest on before deciding this was ready to share. The adversarial brief we used to
-attack our own construction is in [`appendix/refutation-brief.md`](appendix/refutation-brief.md);
-raw session transcripts from both proof runs and the refutation round are available on request.
+[`VERIFICATION.md`](VERIFICATION.md) for the full adversarial trail across both rounds.

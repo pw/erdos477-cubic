@@ -1,5 +1,9 @@
 # Verification trail
 
+*Two rounds documented here: the original cubic-only round (below), and a second round covering
+the K=4–12 general extension (at the end of this file). The cubic-only round's own repo detail
+now lives at `appendix/cubic-case-detail.md`; this file's early sections are that round's record.*
+
 Two independent GPT-5.6 Sol (ChatGPT Pro) runs produced full proofs of the main theorem in `README.md`, via
 different case-splits (one on the size of max(|x|,|y|), one on sign(x,y) then a gap parameter),
 both landing on the identical exponent 18/19 and citing the identical two external theorems. That
@@ -104,3 +108,75 @@ Given both, the "probably negative" expert prior turns out to be about a materia
   (linked above), which makes at least the elementary skeleton (§5's greedy argument, taking the
   two determinant-method bounds as imported axioms) a tractable target for anyone who wants to
   take it on.
+
+---
+
+# Round two: the K=4–12 general extension
+
+Asked GPT-5.6 Sol Pro whether the cubic construction generalizes past K=3. It came back claiming
+FULL PROOF for K=4 through 12, plus a general theorem for every K≥3 — a much bigger claim than the
+cubic case alone, since combined with the already-negative K=2 and the already-covered K=13
+(Peng et al.), this would close Erdős–Graham's question outright. Bigger claim, higher bar: we ran
+the same adversarial-brief discipline, scaled up.
+
+## What Claude independently verified before the adversarial round
+
+- **The semantic pin** (uniqueness is of the *value* b, not the pair (a,k)) — cross-checked
+  against the actual erdosproblems.com LaTeX and against why the published degree-2 negative
+  result isn't trivial under the alternate (pair-uniqueness) reading.
+- **The general absolute-irreducibility argument** (Z^K=P(A) irreducible for every h,c) —
+  specifically checked the classical Vahlen–Capelli 4|K exceptional case and confirmed it vanishes
+  here because ℂ(A) contains i (−4b⁴=(2ib²)² is already a square).
+- **The even-K singular-value argument** (purely imaginary (q−1)^(K−1)) — rederived from scratch
+  via q−1=2i·sin(θ/2)e^(iθ/2).
+- **One odd-K singular-value table row** (K=5) — rederived from the cyclotomic formula directly.
+- **Four of nine exponent-table rows** (K=4, 7, 11, 12 — chosen to span both the 9/10-regime and
+  the 10/K-regime switch at K=12) — recomputed by hand from the closed form, exact matches.
+- **The K=2 sanity check** (formula gives exponent exactly 1, not o(X)) — confirms the mechanism
+  structurally turns on exactly at K=3.
+
+## The adversarial round: one real bug found, correctly triaged
+
+**Target 3 (genus / Riemann–Hurwitz) — GAP FOUND-BUT-FIXABLE.** The original §8.4 genus-drop
+formula, g = g₀ − s(K−1)/2, is wrong for even K. The correct formula (rederived from the
+ramification-divisor contribution K−gcd(K,m) at a cyclic-cover branch point) is
+
+g = g₀ − (s/2)(K−2+gcd(K,2))
+
+which coincides with the original for odd K (gcd(K,2)=1) but not even K. Literally, a complex
+K=4 singular fiber has genus 1, not ≥2 as the original table claimed.
+
+**Claude independently re-verified this fix**, both algebraically (rederiving the ramification
+contribution from the standard cyclic-cover formula) and numerically: the ORIGINAL formula
+produces genus 1.5 for K=4 — not an integer, which is impossible for a genus, an immediate and
+decisive tell that it was wrong. The corrected formula gives exactly 1. Cross-checked K=8
+(corrected: 17) and confirmed all odd-K table values (K=5,7,9,11) are untouched by the bug, since
+gcd(K,2)=1 makes the original and corrected formulas agree exactly when K is odd.
+
+**Why the bug doesn't touch the actual theorem.** Sections §§1–7 (the o(X) bound and the greedy
+construction) never use genus at all — only the unconditional absolute-irreducibility result,
+which doesn't depend on singularity or genus. §8 is a separate audit explaining why the cubic
+case needed an exceptional-fiber treatment and higher K don't. And even within §8, the bug is
+arithmetically inert: even-K fibers are proved smooth for every real/integer c by a completely
+separate, correct argument (the purely-imaginary obstruction), so the wrong-for-even-K genus
+formula was never being evaluated on an arithmetically relevant fiber in the first place. The
+odd-K fibers, where singularities do occur over the integers, were computed with the (unaffected)
+correct formula throughout.
+
+## Other targets
+
+All five other refutation targets (semantic pin; absolute irreducibility including the 4|K
+Vahlen–Capelli check; exponent-table balancing and the remaining five rows K=5,6,8,9,10 — all
+matched; a middle-degree/edge-case hunt across every K in 4–12 for silently-failing assumptions;
+completeness of the even-K special-solutions case analysis) returned SURVIVES SCRUTINY, with real
+independent derivations shown, not just assertions. Full session transcript available on request.
+
+## What we still have not done, for this round specifically
+
+- Same caveat as round one: haven't re-proved (HB1/HB2) or (BHB) from their own foundations, and
+  both the construction and the adversarial check are the same model family (GPT-5.6 Sol).
+- Given the scale of the combined claim now on the table, we think the natural next steps — before
+  treating this as settled — are: (a) a genuinely different model lineage attempting refutation,
+  (b) review from a human number theorist, and (c) a serious look at Lean-formalizing at least the
+  elementary skeleton, since the problem statement is already formalized. None of these have
+  happened yet.
