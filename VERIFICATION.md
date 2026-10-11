@@ -83,7 +83,9 @@ The DeepMind `formal-conjectures` Lean formalization
 states the cubic case as "Probably there is no such A for X³," citing Sekanina (1959). This looked
 like a real headwind before checking closely.
 
-**Pro's argument:** the Lean file's formal statement restricts to `{n | 0 < n}` — *positive* cubes
+**⚠ Stale as of 2026-08-16 — see the referee pass at the end of this file.** The Lean file was changed in commit e7f4b0e9 (16 Aug 2026) to range over `Set.range f.eval`, i.e. all signed cubes with uniqueness of the value, so the open `X_pow_three` variant is now exactly the statement this proof settles; the "different set" defence below no longer applies.
+
+**Pro's argument (as of July 2026):** the Lean file's formal statement restricts to `{n | 0 < n}` — *positive* cubes
 only — despite its docstring claiming n ∈ ℤ. Sekanina's actual result is about positive powers and
 explicitly leaves k ≥ 3 open; there's no cube-specific obstruction there for the signed set
 B = {k³ : k ∈ ℤ} that this proof addresses.
@@ -180,3 +182,65 @@ independent derivations shown, not just assertions. Full session transcript avai
   (b) review from a human number theorist, and (c) a serious look at Lean-formalizing at least the
   elementary skeleton, since the problem statement is already formalized. None of these have
   happened yet.
+
+
+---
+
+# Referee pass, 2026-10-11 (Claude Fable 5.1 + a separately-briefed hostile Claude Opus pass)
+
+Context: erdosproblems.com froze proof claims on 6 Oct 2026; the Formal Conjectures file for #477
+was flipped to "solved" in Sept 2026 on the strength of Liam Price's even-K ≥ 6 result (Lean by
+Codex, plby/lean-proofs, 26 Aug 2026), while its `X_pow_three` variant remains "research open"
+with the docstring "Probably there is no such A for the polynomial X³". This repository (23 Jul
+2026) claims every K ≥ 3, cubes included. Two independent passes re-read the whole chain against
+the primary sources, which were fetched and read in full (arXiv:0806.4330 v1; math/0506497 v1;
+math/0405392, Annals 155).
+
+**Verdict: no gap found in the load-bearing chain (§1, §4–§7 of README).** Specifically:
+
+1. **Finite avoidance + greedy (§1/§7):** holds in both directions. Invariant: A_j finite,
+   (A_j − A_j) ∩ D_K = {0}; packing ⇐ a − a′ ∉ D_K; covering ⇐ the enumeration runs over all of ℤ;
+   0 ∈ D_K is what forces a* ≠ a; C_j ⊂ ℤ∖B_K automatically; the constant may depend on C_j since
+   X is chosen after C_j is fixed.
+2. **Heath-Brown Thm 1** is applied inside its hypotheses (F fixed, N = |c| fixed, N ≪_F B^{3/13} for
+   large B). README §3 had misquoted it (dropping N^{1/10} and the range condition) — corrected. The
+   diagonal "apart from special solutions" clause rests on linear parameterizations being special;
+   the paper's own reference for this is dangling, so here is the argument: a rational line on
+   F − X₄ᴷ = 0 is four binary linear forms fᵢ(u,v); Kth powers of pairwise non-proportional binary
+   linear forms are linearly independent for K ≥ 3 (Vandermonde), so the nonzero fᵢ fall into
+   proportionality classes of size ≥ 2 whose signed Kth-power sums vanish; a class of size 3 is
+   excluded by Fermat's Last Theorem, a class of size 4 is a constant point; hence X₄ is paired with
+   a single Xᵢ, giving cᵢxᵢᴷ = N — a special solution. Thm 2's diagonal clause is not proved in
+   arXiv v1 for degree-≥2 parameterizations; it is not needed (q = 9/10 gives β_K < 1 for all K).
+3. **BHB eq. (3)** reads exactly as cited ("N(F;1,P₂,P₃) ≪ P₃^ε exp(log P₂ log P₃ / log T)",
+   constant depending only on d and ε). Its source is Heath-Brown's C.I.M.E. notes Thm 15, not the
+   Annals paper (the earlier "Theorem 14" attribution in Target 2 above was to a different result).
+   **Fallback that removes the dependency:** Annals 155, Thm 3, eq. (1.8) — N ≪_ε T^{−1/d²} V^{1/d+ε},
+   uniform in F — used for the small gaps still balances to exponent ≈ 0.9895 at K = 3 and < 0.95 for
+   K ≥ 4. The curve input is therefore not a single point of failure.
+4. **Bookkeeping (§4–§7)** re-derived from scratch: h ≪ X, b ≪ X^{K/(K−1)}h^{−1/(K−1)}, T ≥ P₃^{K−1}
+   from the monomial −K·A^{K−1}W, P₂ ≤ P₃, large gaps a,b ≪ M ≥ X; α_K = (qK−1)/(K−2+q),
+   β_K = q(K−1)/(K−2+q); all table rows K = 3..12 reproduce exactly in rational arithmetic. Residue
+   count ≪_{K,c,ε} h^ε re-derived including p | Kc. Absolute irreducibility of Z^K − P(A) holds
+   (Kummer step; order −(K−1) at infinity, gcd(K,K−1)=1; homogenisation preserves it since
+   Φ(0,L,A) = h^{K−1}L^K ≠ 0). Nothing requires uniformity in c.
+5. **Special solutions:** none for c ∉ B_K except the even-K, c < 0 case which forces n = x = 0.
+   The known infinite families — e.g. (6ds²)³ + (d(6s³−1))³ − (d(6s³+1))³ = −2d³, gap h = 2d —
+   sit inside the small-gap count and contribute ≍ X^{1/2}, consistent with the bound.
+6. **Numerical sanity check (evidence, not proof):** E_{3,c}(X) counted exactly for X up to 32,000
+   (divisor-based test for "difference of two cubes", cross-checked against brute enumeration at
+   X = 150): c = 2 → 4, 5, 6, 7, 12, 18 at X = 250…32000 (the n = 6t³+1 family, ≍ X^{1/3});
+   c = −2 → 9…90 (n = 6s² and 6t³−1, ≍ X^{1/2}); c = 3 → 2 throughout; c = 4 → 0; cube control
+   c = 8 flags every n. All sublinear, matching the predicted families.
+
+**Non-load-bearing defects found (now corrected in this revision):** README §3 misquote of HB Thm 1;
+the FLT clause attributed to the paper rather than proved; "resolve the question in full" overstated
+(only monomials X^K; degree-2 negatives are partial; the existential question was already closed by
+Peng et al. and Price); two pointers to tables "in VERIFICATION.md" that live in the appendix; the
+cubic appendix's "absolutely irreducible except at h³ + 4c = 0" (that fiber is singular but still
+absolutely irreducible); the K = 2 "formal check" proves nothing (HB needs degree ≥ 3); and the
+Lean-scope paragraph above, stale since 16 Aug 2026.
+
+**What has still not been done:** a human mathematician's review; a check of the published J. Number
+Theory version of Heath-Brown 2009 against arXiv v1; any formalization. The route to acceptance now
+runs through erdosproblems.com's exposition channel and the Formal Conjectures maintainers.

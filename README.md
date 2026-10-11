@@ -7,7 +7,9 @@ This is [Erdős Problem #477](https://www.erdosproblems.com/477), which asks: do
 polynomial f : ℤ → ℤ of degree ≥ 2 have this property? Erdős and Graham conjectured no. Combined
 with the already-published negative result for degree 2 (AlphaProof + Sarosh Adenwalla — every
 even-symmetric or linear-shifted quadratic fails via a congruence argument), this would resolve
-the question in full: **no for degree 2, yes for every degree ≥ 3.**
+the question in full **for the monomials X^K: no for K = 2, yes for every K ≥ 3.** (Not every polynomial of degree ≥ 2 is treated here, and the recorded degree-2 negatives cover X² and aX²+bX+c with a | b, b ≠ 0 — see the referee notes in `VERIFICATION.md`.)
+
+> **Status, 2026-10-11.** The *existential* question on erdosproblems.com/477 ("is there *any* polynomial of degree ≥ 2 with a tiling complement?") was answered **yes** before this repository existed: Peng et al. (pipeline-math, 28 June 2026) for K = 13, and later Liam Price's "Large Powers Tile the Integers" (even K ≥ 6), formalized in Lean by Codex (plby/lean-proofs, 26 Aug 2026) and now linked from the Formal Conjectures file. **What this repository claims beyond those is the complete statement for every K ≥ 3 — in particular K = 3, 4, 5 and every odd K — including the cubic case that the Formal Conjectures file still lists as open with the comment "Probably there is no such A for X³."** Two independent machine referees (Claude Fable 5.1 and a separately-briefed hostile Claude Opus pass, 11 Oct 2026) found no gap in the load-bearing chain; several non-load-bearing defects in the write-up were found and are corrected in this revision. **No human mathematician has reviewed it.**
 
 **Scope note — this claim grew in two stages, both documented here.** We first closed the cubic
 case (K=3) alone; that construction and its independent verification trail are preserved at
@@ -72,10 +74,15 @@ degree 3, matching where the negative quadratic result sits.)
 **(HB1/HB2) Heath-Brown** ("Sums and Differences of Three k-th Powers," J. Number Theory 129
 (2009); [arXiv:0806.4330](https://arxiv.org/abs/0806.4330)). For a nonsingular diagonal ternary
 form X₁ᴷ±X₂ᴷ±X₃ᴷ, apart from "special" solutions (one signed term individually equal to the
-target), the solution count in a box of size B is O_{K,ε}(B^(9/10+ε)) (Theorem 1) or O_K(B^(10/K))
-(Theorem 2) — both explicit theorem statements, not abstract-level paraphrase. The paper's proof
-shows linear diagonal parameterizations reduce to special solutions via Fermat's Last Theorem, so
-no per-degree line-classification is needed.
+target), the solution count of F(x) = N with max|xᵢ| ≤ B is O_{F,ε}(B^(9/10+ε) N^(1/10)) for N ≪_F B^(3/13)
+(Theorem 1, exact statement; with N = |c| fixed this is O_{K,c,ε}(B^(9/10+ε)), which is all that is
+used) or O_K(B^(10/K)) (Theorem 2, N ≪_F B). The diagonal "apart from special solutions" clause of
+Theorem 1 rests on linear parameterizations being special, which the paper attributes to "an easy
+argument based on Fermat's Last Theorem" with a dangling page reference; the argument is short and
+is written out in `VERIFICATION.md` (referee pass, item 2). Theorem 2's diagonal clause is not
+proved in arXiv v1 for parameterizations of degree ≥ 2, so for K ≥ 20 the table's β_K below should
+be read with q_K = 9/10 (Theorem 1), which still gives β_K < 1 — Theorem 2 is a convenience, not a
+dependency.
 
 **(BHB) Browning–Heath-Brown** ("Plane curves in boxes and equal sums of two powers," Math. Z. 251
 (2005); [arXiv:math/0506497](https://arxiv.org/abs/math/0506497)). For absolutely irreducible
@@ -129,7 +136,8 @@ S_K(X,H) ≪_{K,c,ε} X^(1/(K−1)+ε) H^((K−2)/(K−1)+ε).
 ## 6. Large gaps
 
 For h>H: a,b ≪_c M := X^(K/(K−1)) H^(−1/(K−1)) ≥ X. Every counted solution here is non-special —
-a case check by sign of c and parity of K (§6 detail in `VERIFICATION.md`) shows any special
+a case check by sign of c and parity of K (written out in `appendix/refutation-brief-K4-12.md` §5.1 and
+re-done in `VERIFICATION.md`, referee pass item 4) shows any special
 solution would force c ∈ B_K, contradiction, or (even K, c<0) force n=0, contradicting n≥1. Dyadic
 Heath-Brown gives
 
@@ -164,7 +172,7 @@ integer c,h — **every even-K fiber is smooth**, unconditionally, for every ari
 value. (No genus argument is even needed for even K.)
 
 **Odd K ∈ {5,7,9,11}:** finitely many explicit rational singular c per h (tabulated in
-`VERIFICATION.md`), each pinning at most one h for fixed c — singular gaps stay O_K(1), don't
+`appendix/refutation-brief-K4-12.md`; K=5 and K=7 rows re-checked 2026-10-11), each pinning at most one h for fixed c — singular gaps stay O_K(1), don't
 proliferate with X.
 
 **Genus, corrected.** For the cyclic cover Zᴷ=P(A), a point where P has order m contributes

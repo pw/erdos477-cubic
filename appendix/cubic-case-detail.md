@@ -91,7 +91,7 @@ Split at H = X^(17/19).
 ≪_{c,ε} h^ε such residues (elementary Hensel-lifting count, §8). Writing k = r + hℓ and clearing
 denominators gives a ternary cubic H_{h,r}(1,ℓ,u) = 0 with box sides P₂ ≍_c X/h, P₃ ≍_c
 X^(3/2)h^(−1/2), and coefficients O_c(h²) (not h³ — the naive homogeneous expansion overstates
-this; see §7). The curve is absolutely irreducible except at the single value h³ + 4c = 0 (a
+this; see §7). The curve is absolutely irreducible for every h and c (see README §5 for the general argument); at the single value h³ + 4c = 0 it is singular — (a
 direct partial-derivatives check on the K = rw + ht substituted model — recognizably a disguised
 Weierstrass cubic, s² ∝ (cubic in K), singular exactly when its constant term vanishes). Apply
 (BHB): each nonsingular (h,r) contributes ≪_{c,ε} X^(1/2+ε) h^(−1/2). Summing over h ≤ H and the
